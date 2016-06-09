@@ -54,6 +54,22 @@ object CommentsController extends DiscussionController with ExecutionContexts {
     }
   }
 
+  // Used for getting more replies for a specific comment.
+  def commentResponsesJson(commentId: Int) = commentResponses(commentId)
+  def commentResponses(commentId: Int) = Action.async { implicit request =>
+    discussionApi.commentResponses(commentId) map {
+      comment =>
+        Cached(60) {
+          if (request.isJson)
+            JsonComponent(
+              "html" -> views.html.discussionComments.blockCommentsList(comment, false).toString
+            )
+          else
+            RevalidatableResult.Ok(views.html.discussionComments.blockCommentsList(comment, false))
+        }
+    }
+  }
+
   // Get a list of comments for a discussion.
   def comments(key: DiscussionKey) = Action.async { implicit request => getComments(key) }
   def commentsJson(key: DiscussionKey) = Action.async { implicit request => getComments(key) }

@@ -96,6 +96,21 @@ trait DiscussionApi extends Http with ExecutionContexts with Logging {
     getJsonForUri(key, url)
   }
 
+  def commentResponses(commentId: Int): Future[Seq[Comment]] = {
+
+    val parameters = List(
+      "displayResponses" -> "true")
+    val path = s"/comment/$commentId"
+    val url = endpointUrl(path, parameters)
+
+    def onError(r: WSResponse) =
+      s"Discussion API: Error loading comments id: $commentId status: ${r.status} message: ${r.statusText} url: $url"
+
+    getJsonOrError(url, onError) map {
+
+      json => (json \ "comment").toOption.map(Comment(_, None, None).responses).getOrElse(Nil/*FIXME*/)}
+  }
+
   def commentContext(id: Int, params: DiscussionParams): Future[(DiscussionKey, String)] = {
     def onError(r: WSResponse) =
       s"Discussion API: Cannot load comment context, status: ${r.status}, message: ${r.statusText}, response: ${r.body}"
