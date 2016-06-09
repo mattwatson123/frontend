@@ -47,6 +47,39 @@ trait DiscussionApi extends Http with ExecutionContexts with Logging {
     getCommentJsonForId(id, url)
   }
 
+  def commentCountsForBlocks(key: DiscussionKey): Future[Seq[BlockCommentCount]] = {
+
+    val MAGIC_COMMENT = """#block-"""
+    val SPECIAL_USER: String = "21814163" // john on CODE
+
+    val parameters = List(
+      "pageSize" -> "100",
+      "page" -> "1",
+      "displayThreaded" -> "true",
+      "maxResponses" -> 0,
+      "showSwitches" -> "true")
+    val path = s"/discussion/$key"
+    val url = endpointUrl(path, parameters) //get the top level comments
+    // now we need to filter the block ones
+
+    val topLevel = getJsonForUri(key, url)
+
+    topLevel.map { comments =>
+      comments.comments.filter { comment =>
+        comment.profile.userId == SPECIAL_USER
+      }.flatMap { comment =>
+        val body = comment.body
+        for {
+          startOfBlockId <- Some(body.indexOf(MAGIC_COMMENT) + MAGIC_COMMENT.length).filter(_ >= 0)
+          endOfBlockId <- Some(body.indexOf("\"", startOfBlockId)).filter(_ >= 0)
+        } yield {
+          val blockId = "block-" + body.substring(startOfBlockId, endOfBlockId)
+          BlockCommentCount(key.keyAsString, blockId, comment.id.toString, comment.responseCount)
+        }
+      }
+    }
+  }
+
   def commentsFor(key: DiscussionKey, params: DiscussionParams): Future[DiscussionComments] = {
     val parameters = List(
       "pageSize" -> params.pageSize,

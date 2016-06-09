@@ -13,6 +13,17 @@ case class CommentCount(id: String, count: Int) {
   )
 }
 
+case class BlockCommentCount(id: String, blockId: String, rootCommentId: String, count: Int) {
+  lazy val toJson = JsObject(
+    Seq(
+      "id" -> JsString(id),
+      "blockId" -> JsString(blockId),
+      "rootCommentId" -> JsString(rootCommentId),
+      "count" -> JsNumber(count)
+    )
+  )
+}
+
 case class DefaultComment(
   id:Int, body:String,
   responses: Seq[Comment],

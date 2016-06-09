@@ -84,6 +84,7 @@ GET            /discussion/report-abuse/:commentId/thankyou                     
 GET            /discussion/report-abuse/*commentId                                                                               controllers.CommentsController.reportAbuseForm(commentId: Int)
 POST           /discussion/report-abuse/*commentId                                                                               controllers.CommentsController.reportAbuseSubmission(commentId: Int)
 
+GET         /discussion/comment-counts-blocks.json                                     controllers.CommentCountController.commentCountForBlocksJson(shortUrl: String)
 # Onward
 GET            /most-read-facebook.json                                                                                          controllers.MostViewedSocialController.renderMostViewed(socialContext: String = "facebook")
 GET            /most-read-twitter.json                                                                                           controllers.MostViewedSocialController.renderMostViewed(socialContext: String = "twitter")

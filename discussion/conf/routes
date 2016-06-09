@@ -9,6 +9,7 @@ GET         /_healthcheck                                                       
 
 GET         /discussion/comment-counts                                          controllers.CommentCountController.commentCount(shortUrls: String)
 GET         /discussion/comment-counts.json                                     controllers.CommentCountController.commentCountJson(shortUrls: String)
+GET         /discussion/comment-counts-blocks.json                                     controllers.CommentCountController.commentCountForBlocksJson(shortUrl: String)
 
 GET         /discussion/comment/*id.json                                        controllers.CommentsController.commentJson(id: Int)
 GET         /discussion/comment/*id                                             controllers.CommentsController.comment(id: Int)
