@@ -171,16 +171,18 @@ Loader.prototype.initLiveBlogComments = function() {
         function renderCounts(resp) {
             $('.js-blog-entry-view-comments').each(function(el) {
                bean.on(el, 'click', function onClick() {
-                   $(el).next().removeClass('u-h');
-                   ajaxPromise({
-                       url: '/discussion/comment-responses/' + $(el).data('root-comment-id') + '.json',
-                       type: 'json',
-                       method: 'get',
-                       crossOrigin: true
-                   })
-                   .then(function (_) { return _.html; })
-                   .then(function (html) { el.nextElementSibling.firstElementChild.innerHTML = html; });
-                   bean.off(el, 'click', onClick);
+                   $(el).next().toggleClass('u-h');
+                   if (!$(el).data('comments-loaded')) {
+                       ajaxPromise({
+                           url: '/discussion/comment-responses/' + $(el).data('root-comment-id') + '.json',
+                           type: 'json',
+                           method: 'get',
+                           crossOrigin: true
+                       })
+                       .then(function (_) { return _.html; })
+                       .then(function (html) { el.nextElementSibling.firstElementChild.innerHTML = html; })
+                       .then(function () { $(el).data('comments-loaded', 'true'); });
+                   }
                });
             });
 
