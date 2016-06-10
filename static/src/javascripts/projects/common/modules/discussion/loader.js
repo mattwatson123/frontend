@@ -207,7 +207,12 @@ Loader.prototype.initLiveBlogComments = function() {
 
     this.on('user:loaded', function() {
         $('[itemprop="liveBlogUpdate"] .js-blog-entry-comment-box').each(function(el) {
-            this.renderCommentBox(el);
+            return new CommentBox({
+                discussionId: this.getDiscussionId(),
+                premod: this.user.privateFields.isPremoderated,
+                newCommenter: !this.user.privateFields.hasCommented,
+                state: 'blog-post'
+            }).render(el).on('post:success', this.commentPosted.bind(this));
         }.bind(this));
     });
 };
