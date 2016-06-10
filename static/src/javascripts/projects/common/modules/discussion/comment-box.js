@@ -256,6 +256,10 @@ CommentBox.prototype.postComment = function() {
             comment.replyTo = self.options.replyTo;
         }
 
+        if (self.getRootCommentId()) {
+            comment.rootCommentId = self.getRootCommentId();
+        }
+
         if (self.errors.length === 0) {
             comment.body = self.urlify(comment.body);
             self.setFormState(true);
@@ -367,6 +371,10 @@ CommentBox.prototype.previewCommentSuccess = function(comment, resp) {
  */
 CommentBox.prototype.getDiscussionId = function() {
     return this.options.discussionId || this.elem.getAttribute('data-discussion-key').replace('discussion', '');
+};
+
+CommentBox.prototype.getRootCommentId = function() {
+    return this.options.rootCommentId || null;
 };
 
 /**
