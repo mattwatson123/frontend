@@ -123,6 +123,10 @@ Loader.prototype.initMainComments = function() {
         if (this.user) {
             this.comments.addUser(this.user);
 
+            if (config.page.isLiveBlog) {
+                $('.blog-entry-comment .d-comment-box__author').text(this.user.displayName);
+            }
+
             var userPageSize = userPrefs.get('discussion.pagesize'),
                 pageSize = defaultPagesize;
 
@@ -165,18 +169,8 @@ Loader.prototype.initLiveBlogComments = function() {
         crossOrigin: true
     }).then(
         function renderCounts(resp) {
-            var blogEntryComment =
-                '<div class="blog-entry-comment">' +
-                '   <a style="display: block;" class="js-blog-entry-view-comments">' +
-                '       <span class="js-blog-entry-num-comments">No Comments</span> ' +
-                '   </a>' +
-                '   <div class="u-h js-blog-entry-comment-box">Loading...</div>' +
-                '</div>';
-
-            $('[itemprop="liveBlogUpdate"]').append(blogEntryComment);
-
             $('.js-blog-entry-view-comments').each(function(el) {
-               bean.on(el, 'click', function() {
+               bean.on(el, 'click', function onClick() {
                    $(el).next().removeClass('u-h');
                    ajaxPromise({
                        url: '/discussion/comment-responses/' + $(el).data('root-comment-id') + '.json',
@@ -185,7 +179,8 @@ Loader.prototype.initLiveBlogComments = function() {
                        crossOrigin: true
                    })
                    .then(function (_) { return _.html; })
-                   .then(function (html) { $(el).next().html(html); });
+                   .then(function (html) { el.nextElementSibling.firstElementChild.innerHTML = html; });
+                   bean.off(el, 'click', onClick);
                });
             });
 
@@ -199,6 +194,7 @@ Loader.prototype.initLiveBlogComments = function() {
                     text = block.count + ' Comments';
                 }
                 $('#'+block.blockId + ' .js-blog-entry-num-comments').text(text);
+                $('#'+block.blockId + ' .js-blog-entry-comment-box').text('Loading...');
                 $('#'+block.blockId + ' .js-blog-entry-view-comments').data('root-comment-id', block.rootCommentId);
             });
         }.bind(this)
