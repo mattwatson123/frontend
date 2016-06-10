@@ -1,0 +1,73 @@
+@(comment: Comment, isClosedForRecommendation: Boolean = true, isResponse: Boolean = false)(implicit request: RequestHeader)
+@import conf.Configuration
+
+@* Please don't use the isTopComment switch - we've kept it pretty clean without it, but just need a solution for IDs *@
+<li class="d-comment
+            @RenderClasses(Map(
+                "d-comment--response" -> isResponse,
+                "d-comment--top-level" -> !isResponse,
+                "d-comment--blocked" -> comment.isBlocked,
+                "d-comment--has-replies" -> comment.responses.nonEmpty,
+                "d-comment-staff" -> comment.profile.isStaff
+            ))"
+           id="comment-@comment.id"
+           data-comment-id="@comment.id"
+           data-comment-author="@comment.profile.displayName"
+           data-comment-replies="@comment.responseCount"
+           data-comment-timestamp="@comment.date"
+           data-comment-author-id="@comment.profile.userId"
+           data-comment-highlighted="@comment.isHighlighted"
+           itemscope itemtype="http://schema.org/Comment">
+
+    <div class="d-comment__inner @if(isResponse){d-comment__inner--response}else{d-comment__inner--top-level}">
+        <div class="d-comment__meta">
+            <span class="d-comment__avatar-wrapper">
+                <img src="@comment.profile.avatar" alt="" class="d-comment__avatar"/>
+            </span>
+            <div class="d-comment__meta-text">
+                <span
+                    itemscope
+                    itemprop="author"
+                    itemtype="http://schema.org/Person"
+                    title="@comment.profile.displayName"
+                    class="d-comment__author">
+                    <a href="@Configuration.id.url/user/id/@comment.profile.userId" itemprop="url">
+                        <span itemprop="givenName">@comment.profile.displayName</span>
+                    </a>
+                </span>
+
+                <div class="d-comment__main @if(comment.isBlocked){d-comment__main--removed}">
+
+                    <div class="d-comment__body" itemprop="text">
+                    @if(comment.isBlocked){
+                        <div class="d-comment__comment-removed">
+                            This comment was removed by a moderator because it didn't abide by our
+                            <a href="http://www.theguardian.com/community-standards" data-link-name="community standards">community standards</a>.
+                            Replies may also be deleted. For more detail see <a href="http://www.theguardian.com/community-faqs" data-link-name="FAQs">our FAQs</a>.</div>
+                    }else{
+                        @defining(Edition(request)) { edition =>
+                            @withJsoup(BulletCleaner(comment.body))(
+                                InBodyLinkCleaner("in body link")
+                            )
+                        }
+                    }
+                    </div>
+                </div>
+                @if(comment.isHighlighted && !comment.isBlocked) {
+                    <div class="d-comment__pick" title="Guardian pick">
+                        @fragments.inlineSvg("marque-36", "icon", Seq("d-comment__gu-icon")) Guardian Pick
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+
+    @if(comment.responses.nonEmpty){
+        <ul class="d-thread d-thread--responses" data-responses="@comment.responses.length">
+            @comment.responses.map{ response =>
+                @fragments.comment(response, isClosedForRecommendation, true)
+            }
+        </ul>
+    }
+</li>
