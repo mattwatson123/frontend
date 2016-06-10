@@ -165,16 +165,6 @@ Loader.prototype.initLiveBlogComments = function() {
         crossOrigin: true
     }).then(
         function renderCounts(resp) {
-            var blogEntryComment =
-                '<div class="blog-entry-comment">' +
-                '   <a style="display: block;" class="js-blog-entry-view-comments">' +
-                '       <span class="js-blog-entry-num-comments">No Comments</span> ' +
-                '   </a>' +
-                '   <div class="u-h js-blog-entry-comment-box">Loading...</div>' +
-                '</div>';
-
-            $('[itemprop="liveBlogUpdate"]').append(blogEntryComment);
-
             $('.js-blog-entry-view-comments').each(function(el) {
                bean.on(el, 'click', function onClick() {
                    $(el).next().removeClass('u-h');
