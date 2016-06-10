@@ -158,7 +158,7 @@ Loader.prototype.initMainComments = function() {
 };
 
 Loader.prototype.initLiveBlogComments = function() {
-    var promise = ajaxPromise({
+    ajaxPromise({
         url: '/discussion/comment-counts-blocks.json?shortUrl=' + this.getDiscussionId(),
         type: 'json',
         method: 'get',
@@ -176,7 +176,7 @@ Loader.prototype.initLiveBlogComments = function() {
             $('[itemprop="liveBlogUpdate"]').append(blogEntryComment);
 
             $('.js-blog-entry-view-comments').each(function(el) {
-               bean.on(el, 'click', function(e) {
+               bean.on(el, 'click', function() {
                    $(el).next().toggleClass('u-h');
                });
             });
