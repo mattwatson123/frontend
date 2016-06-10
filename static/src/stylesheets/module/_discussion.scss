@@ -406,6 +406,9 @@ $avatarPadding: $gs-gutter / 2;
     float: left;
     width: 250px;
     margin-left: -260px;
+    margin-top: $gs-baseline / -2;
+
+    .d-comment::before { content: none; }
 }
 
 .d-comment-box--blog-post .d-comment-box__meta {
@@ -1513,6 +1516,9 @@ $comment-recommend-button-size: 19px;
         padding-bottom: 0;
     }
 
+    .d-comment-box__content > span,
+    .d-comment-box__formatting-controls,
+    .d-comment-box__community-standards,
     .d-comment__actions,
     .d-comment-box__meta,
     .d-comment-box__submit span {

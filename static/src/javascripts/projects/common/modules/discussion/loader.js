@@ -223,6 +223,9 @@ Loader.prototype.initLiveBlogComments = function() {
                             var pickedComments = document.createElement('div');
                             pickedComments.classList.add('picked-comments');
                             pickedComments.innerHTML = resp.html;
+                            if( pickedComments.querySelector('.d-thread--comments').children.length > 0 ) {
+                                pickedComments.insertAdjacentHTML('afterbegin', '<div>Selected comment</div>');
+                            }
 
                             var blogEntry = el.closest('[itemprop="liveBlogUpdate"]');
                             blogEntry.insertBefore(pickedComments, blogEntry.firstElementChild);
