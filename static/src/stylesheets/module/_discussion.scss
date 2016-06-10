@@ -399,19 +399,15 @@ $avatarPadding: $gs-gutter / 2;
 }
 
 .blog-entry-comment {
-    padding: 0 $gs-gutter/2;
+    padding: $gs-baseline $gs-gutter/2 0;
 }
 
 .d-comment-box--blog-post .d-comment-box__meta {
     position: relative;
 
-    //@include mq(tablet) {
-    //    margin-top: $gs-baseline / 2;
-    //}
     .d-comment-box__avatar-wrapper {
         display: none;
     }
-
     .user-avatar__image {
         width: $avatarSize-small;
         height: $avatarSize-small;
