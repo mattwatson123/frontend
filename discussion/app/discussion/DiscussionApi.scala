@@ -47,6 +47,31 @@ trait DiscussionApi extends Http with ExecutionContexts with Logging {
     getCommentJsonForId(id, url)
   }
 
+  val PICK_ME_PICK_ME = "amazing"
+  /*******any comment with "amazing" in it is picked********/
+  def commentForPromoted(id: Int): Future[Seq[Comment]] = {
+    val parameters = List(
+      "displayResponses" -> "true",
+      "displayThreaded" -> "true")
+    val url = endpointUrl(s"/comment/$id", parameters)
+
+    def onError(r: WSResponse) =
+      s"Error loading comment id: $id status: ${r.status} message: ${r.statusText}"
+
+    getJsonOrError(url, onError) map { json =>
+      (json \ "comment").toOption.map{ x =>
+        filter(Comment(x, None, None).responses)
+      }.getOrElse(Nil/*FIXME*/)
+    }
+  }
+
+  def filter(c: Seq[Comment]): Seq[Comment] = {
+    c.filter(_.body.contains(PICK_ME_PICK_ME))
+      .map { case dc: DefaultComment =>
+        dc.copy(responses = filter(dc.responses))
+      }
+  }
+
   val MAGIC_COMMENT = """#block-"""
   val SPECIAL_USER: String = "21814163" // john on CODE
 
