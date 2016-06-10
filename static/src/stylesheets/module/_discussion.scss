@@ -402,6 +402,12 @@ $avatarPadding: $gs-gutter / 2;
     padding: $gs-baseline $gs-gutter/2 0;
 }
 
+.picked-comments {
+    float: right;
+    width: 250px;
+    margin-right: -260px;
+}
+
 .d-comment-box--blog-post .d-comment-box__meta {
     position: relative;
 
