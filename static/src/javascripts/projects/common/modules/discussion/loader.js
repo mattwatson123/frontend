@@ -206,13 +206,26 @@ Loader.prototype.initToolbar = function() {
         this.loadComments({page: 1});
     });
 
+    var verifiedUserNames = ['HonestAnne']; // change this if necessary!
     var $commentsFromLabel = $('.js-comments-from');
     var commentsFrom = 'All Users';
+    var commentsFromName = 'comments-all-users';
     $commentsFromLabel.text(commentsFrom);
     this.on('click', '.js-comments-from-dropdown .popup__action', function(e) {
         bean.fire(qwery('.js-comments-from-dropdown [data-toggle]')[0], 'click');
         commentsFrom = bonzo(e.currentTarget).data('comments-from');
+        commentsFromName = bonzo(e.currentTarget).data('link-name');
         $commentsFromLabel.text(commentsFrom);
+        if (commentsFromName === 'comments-verified-users') {
+          verifiedUserNames.forEach(function(username) {
+            bonzo(qwery('.d-comment--top-level:not([data-comment-author="' + username + '"])')).hide();
+          });
+        }
+        else {
+          verifiedUserNames.forEach(function(username) {
+            bonzo(qwery('.d-comment--top-level:not([data-comment-author="' + username + '"])')).show();
+          });
+        }
         //userPrefs.set('discussion.order', this.comments.options.order);
         //this.loadComments({page: 1});
     });
@@ -470,8 +483,6 @@ Loader.prototype.loadComments = function(options) {
         if (options.comment) {
             this.gotoComment(options.comment);
         }
-
-        bonzo(qwery('[data-comment-author="SimonHackday"]')).hide();
     }.bind(this));
 };
 
