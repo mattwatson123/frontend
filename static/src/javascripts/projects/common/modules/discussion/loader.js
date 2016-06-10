@@ -170,14 +170,22 @@ Loader.prototype.initLiveBlogComments = function() {
                 '   <a style="display: block;" class="js-blog-entry-view-comments">' +
                 '       <span class="js-blog-entry-num-comments">No Comments</span> ' +
                 '   </a>' +
-                '   <div class="u-h js-blog-entry-comment-box"></div>' +
+                '   <div class="u-h js-blog-entry-comment-box">Loading...</div>' +
                 '</div>';
 
             $('[itemprop="liveBlogUpdate"]').append(blogEntryComment);
 
             $('.js-blog-entry-view-comments').each(function(el) {
                bean.on(el, 'click', function() {
-                   $(el).next().toggleClass('u-h');
+                   $(el).next().removeClass('u-h');
+                   ajaxPromise({
+                       url: '/discussion/comment-responses/' + $(el).data('root-comment-id') + '.json',
+                       type: 'json',
+                       method: 'get',
+                       crossOrigin: true
+                   })
+                   .then(function (_) { return _.html; })
+                   .then(function (html) { $(el).next().html(html); });
                });
             });
 
@@ -191,6 +199,7 @@ Loader.prototype.initLiveBlogComments = function() {
                     text = block.count + ' Comments';
                 }
                 $('#'+block.blockId + ' .js-blog-entry-num-comments').text(text);
+                $('#'+block.blockId + ' .js-blog-entry-view-comments').data('root-comment-id', block.rootCommentId);
             });
         }.bind(this)
     ).catch(this.logError.bind(this, 'Comment counts per blog post'));
