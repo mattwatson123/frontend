@@ -941,3 +941,17 @@ $timeline-width: 15px;
         }
     }
 }
+
+/* Liveblog comments */
+.blog-entry-view-comments {
+    @include fs-textSans(1);
+
+    path {
+        fill: currentColor;
+    }
+
+    span {
+        display: inline-flex;
+        align-items: center;
+    }
+}
