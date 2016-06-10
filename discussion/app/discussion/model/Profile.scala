@@ -10,6 +10,7 @@ case class Profile(
   displayName: String,
   isStaff: Boolean = false,
   isContributor: Boolean = false,
+  isVerified: Boolean = false,
   privateFields: Option[PrivateProfileFields] = None
 )
 
@@ -19,6 +20,7 @@ object Profile {
   def apply(json: JsValue): Profile = {
     val profileJson = json \ "userProfile"
     val badges = profileJson \ "badge" \\ "name"
+    val isVerified = ((profileJson \ "displayName").as[String] == "HonestAnne")
 
     Profile(
       userId = (profileJson \ "userId").as[String],
@@ -27,6 +29,7 @@ object Profile {
       displayName = (profileJson \ "displayName").as[String],
       isStaff = badges.exists(_.as[String] == "Staff"),
       isContributor = badges.exists(_.as[String] == "Contributor"),
+      isVerified = isVerified,
       privateFields = getPrivateFields((profileJson \ "privateFields").toOption)
     )
   }

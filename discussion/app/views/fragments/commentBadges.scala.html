@@ -7,7 +7,7 @@
     <div class="d-comment__author-label">
         @fragments.inlineSvg("marque-36", "icon", Seq("d-comment__gu-icon")) Contributor
     </div>
-}else { @if(comment.profile.displayName == "HonestAnne") {
+}else { @if(comment.profile.isVerified) {
   <div class="d-comment__author-label">
       @fragments.inlineSvg("marque-36", "icon", Seq("d-comment__gu-icon")) Verified User
   </div>

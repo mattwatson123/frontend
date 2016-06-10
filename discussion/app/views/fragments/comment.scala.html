@@ -17,6 +17,7 @@
            data-comment-timestamp="@comment.date"
            data-comment-author-id="@comment.profile.userId"
            data-comment-highlighted="@comment.isHighlighted"
+           data-comment-is-verified="@comment.profile.isVerified"
            itemscope itemtype="http://schema.org/Comment">
 
     <div class="d-comment__inner @if(isResponse){d-comment__inner--response}else{d-comment__inner--top-level}">

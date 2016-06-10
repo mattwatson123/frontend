@@ -206,7 +206,6 @@ Loader.prototype.initToolbar = function() {
         this.loadComments({page: 1});
     });
 
-    var verifiedUserNames = ['HonestAnne']; // change this if necessary!
     var $commentsFromLabel = $('.js-comments-from');
     var commentsFrom = 'All Users';
     var commentsFromName = 'comments-all-users';
@@ -217,14 +216,10 @@ Loader.prototype.initToolbar = function() {
         commentsFromName = bonzo(e.currentTarget).data('link-name');
         $commentsFromLabel.text(commentsFrom);
         if (commentsFromName === 'comments-verified-users') {
-          verifiedUserNames.forEach(function(username) {
-            bonzo(qwery('.d-comment--top-level:not([data-comment-author="' + username + '"])')).hide();
-          });
+          bonzo(qwery('[data-comment-is-verified="false"])')).hide();
         }
         else {
-          verifiedUserNames.forEach(function(username) {
-            bonzo(qwery('.d-comment--top-level:not([data-comment-author="' + username + '"])')).show();
-          });
+          bonzo(qwery('[data-comment-is-verified="false"])')).show();
         }
         //userPrefs.set('discussion.order', this.comments.options.order);
         //this.loadComments({page: 1});
