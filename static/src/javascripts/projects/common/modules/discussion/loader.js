@@ -176,7 +176,7 @@ Loader.prototype.initLiveBlogComments = function() {
             $('[itemprop="liveBlogUpdate"]').append(blogEntryComment);
 
             $('.js-blog-entry-view-comments').each(function(el) {
-               bean.on(el, 'click', function() {
+               bean.on(el, 'click', function onClick() {
                    $(el).next().removeClass('u-h');
                    ajaxPromise({
                        url: '/discussion/comment-responses/' + $(el).data('root-comment-id') + '.json',
@@ -186,6 +186,7 @@ Loader.prototype.initLiveBlogComments = function() {
                    })
                    .then(function (_) { return _.html; })
                    .then(function (html) { $(el).next().html(html); });
+                   bean.off(el, 'click', onClick);
                });
             });
 
