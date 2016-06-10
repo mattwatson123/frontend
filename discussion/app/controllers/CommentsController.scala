@@ -55,6 +55,22 @@ object CommentsController extends DiscussionController with ExecutionContexts {
   }
 
   // Used for getting more replies for a specific comment.
+  def commentPromotedJson(id: Int) = commentPromoted(id)
+  def commentPromoted(id: Int) = Action.async { implicit request =>
+    discussionApi.commentForPromoted(id) map {
+      comment =>
+        Cached(60) {
+          if (request.isJson)
+            JsonComponent(
+              "html" -> views.html.discussionComments.blockCommentsList(comment, false).toString
+            )
+          else
+            RevalidatableResult.Ok(views.html.discussionComments.blockCommentsList(comment, false))
+        }
+    }
+  }
+
+  // Used for hack day block comments
   def commentResponsesJson(commentId: Int) = commentResponses(commentId)
   def commentResponses(commentId: Int) = Action.async { implicit request =>
     discussionApi.commentResponses(commentId) map {
