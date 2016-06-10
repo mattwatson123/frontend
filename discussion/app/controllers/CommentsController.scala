@@ -62,10 +62,10 @@ object CommentsController extends DiscussionController with ExecutionContexts {
         Cached(60) {
           if (request.isJson)
             JsonComponent(
-              "html" -> views.html.discussionComments.blockCommentsList(comment, false).toString
+              "html" -> views.html.discussionComments.blockCommentsListPromoted(comment, false).toString
             )
           else
-            RevalidatableResult.Ok(views.html.discussionComments.blockCommentsList(comment, false))
+            RevalidatableResult.Ok(views.html.discussionComments.blockCommentsListPromoted(comment, false))
         }
     }
   }
