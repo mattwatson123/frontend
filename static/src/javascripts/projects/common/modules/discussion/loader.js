@@ -157,6 +157,51 @@ Loader.prototype.initMainComments = function() {
     this.getUser();
 };
 
+Loader.prototype.initLiveBlogComments = function() {
+    var promise = ajaxPromise({
+        url: '/discussion/comment-counts-blocks.json?shortUrl=' + this.getDiscussionId(),
+        type: 'json',
+        method: 'get',
+        crossOrigin: true
+    }).then(
+        function renderCounts(resp) {
+            var blogEntryComment =
+                '<div class="blog-entry-comment">' +
+                '   <a style="display: block;" class="js-blog-entry-view-comments">' +
+                '       <span class="js-blog-entry-num-comments">No Comments</span> ' +
+                '   </a>' +
+                '   <div class="u-h js-blog-entry-comment-box"></div>' +
+                '</div>';
+
+            $('[itemprop="liveBlogUpdate"]').append(blogEntryComment);
+
+            $('.js-blog-entry-view-comments').each(function(el) {
+               bean.on(el, 'click', function(e) {
+                   $(el).next().toggleClass('u-h');
+               });
+            });
+
+            resp.counts.forEach(function(block) {
+                var text;
+                if (block.count === 0) {
+                    text = 'No Comments';
+                } else if (block.count === 1) {
+                    text = '1 Comment';
+                } else {
+                    text = block.count + ' Comments';
+                }
+                $('#'+block.blockId + ' .js-blog-entry-num-comments').text(text);
+            });
+        }.bind(this)
+    ).catch(this.logError.bind(this, 'Comment counts per blog post'));
+
+    this.on('user:loaded', function() {
+        $('[itemprop="liveBlogUpdate"] .js-blog-entry-comment-box').each(function(el) {
+            this.renderCommentBox(el);
+        }.bind(this));
+    });
+};
+
 Loader.prototype.logError = function(commentType, error) {
     var reportMsg = commentType + ' failed to load: ',
         request = error.request || {};
@@ -274,6 +319,8 @@ Loader.prototype.ready = function() {
     this.renderCommentCount();
     this.initPagination();
     this.initRecommend();
+
+    this.initLiveBlogComments();
 
     DiscussionAnalytics.init();
 
