@@ -1,0 +1,19 @@
+[data-gu-instant] {
+  border: 3px dashed red;
+}
+
+.fc-item .fc-item__link[data-gu-instant]::before {
+  content: ' ';
+  background-image: url('https://m.thegulocal.com/assets/images/power-orig.svg');
+  background-size: 100% 100%;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 32px;
+  height: 32px;
+}
+
+.fc-item .fc-item__link {
+  position: relative;
+  display: inline-block;
+}
