@@ -51,6 +51,7 @@ define([
      */
     Api.postComment = function (discussionId, comment) {
         var endpoint = '/discussion/' + discussionId + '/comment' +
+            (comment.rootCommentId ? '/' + comment.rootCommentId  + '/reply' : '') +
             (comment.replyTo ? '/' + comment.replyTo.commentId + '/reply' : '');
 
         return Api.send(endpoint, 'post', comment);

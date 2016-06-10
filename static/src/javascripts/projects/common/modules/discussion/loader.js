@@ -162,71 +162,75 @@ Loader.prototype.initMainComments = function() {
 };
 
 Loader.prototype.initLiveBlogComments = function() {
-    ajaxPromise({
-        url: '/discussion/comment-counts-blocks.json?shortUrl=' + this.getDiscussionId(),
-        type: 'json',
-        method: 'get',
-        crossOrigin: true
-    }).then(
-        function renderCounts(resp) {
-            $('.js-blog-entry-view-comments').each(function(el) {
-               bean.on(el, 'click', function onClick() {
-                   $(el).next().toggleClass('u-h');
-                   if (!$(el).data('comments-loaded')) {
-                       ajaxPromise({
-                           url: '/discussion/comment-responses/' + $(el).data('root-comment-id') + '.json',
-                           type: 'json',
-                           method: 'get',
-                           crossOrigin: true
-                       })
-                       .then(function (_) { return _.html; })
-                       .then(function (html) { el.nextElementSibling.firstElementChild.innerHTML = html; })
-                       .then(function () { $(el).data('comments-loaded', 'true'); });
-                   }
-               });
-            });
-
-            resp.counts.forEach(function(block) {
-                var text;
-                if (block.count === 0) {
-                    text = 'No Comments';
-                } else if (block.count === 1) {
-                    text = '1 Comment';
-                } else {
-                    text = block.count + ' Comments';
-                }
-                $('#'+block.blockId + ' .js-blog-entry-num-comments').text(text);
-                $('#'+block.blockId + ' .js-blog-entry-comments').text('Loading...');
-                $('#'+block.blockId + ' .js-blog-entry-view-comments').data('root-comment-id', block.rootCommentId);
-            });
-        }.bind(this)
-    ).then(
-        function renderPickedComments() {
-            $('[itemprop="liveBlogUpdate"] .js-blog-entry-view-comments').each(function(el) {
-                var rootCommentId = $(el).data('root-comment-id');
-                if (rootCommentId) {
-                    this.fetchPickedCommentsForBlogPost(rootCommentId).then(function(resp) {
-                        var pickedComments = document.createElement('div');
-                        pickedComments.classList.add('picked-comments');
-                        pickedComments.innerHTML = resp.html;
-
-                        var blogEntry = el.closest('[itemprop="liveBlogUpdate"]');
-                        blogEntry.insertBefore(pickedComments, blogEntry.firstElementChild);
-                    });
-                }
-            }.bind(this));
-        }.bind(this)
-    ).catch(this.logError.bind(this, 'Comment counts per blog post'));
+    var commentBoxes = {};
 
     this.on('user:loaded', function() {
         $('[itemprop="liveBlogUpdate"] .js-blog-entry-comment-box').each(function(el) {
-            return new CommentBox({
+            var id = el.closest('[itemprop="liveBlogUpdate"]').id;
+            commentBoxes[id] = new CommentBox({
                 discussionId: this.getDiscussionId(),
                 premod: this.user.privateFields.isPremoderated,
                 newCommenter: !this.user.privateFields.hasCommented,
                 state: 'blog-post'
             }).render(el).on('post:success', this.commentPosted.bind(this));
         }.bind(this));
+
+        ajaxPromise({
+            url: '/discussion/comment-counts-blocks.json?shortUrl=' + this.getDiscussionId(),
+            type: 'json',
+            method: 'get',
+            crossOrigin: true
+        }).then(
+            function renderCounts(resp) {
+                $('.js-blog-entry-view-comments').each(function(el) {
+                   bean.on(el, 'click', function onClick() {
+                       $(el).next().toggleClass('u-h');
+                       if (!$(el).data('comments-loaded')) {
+                           ajaxPromise({
+                               url: '/discussion/comment-responses/' + $(el).data('root-comment-id') + '.json',
+                               type: 'json',
+                               method: 'get',
+                               crossOrigin: true
+                           })
+                           .then(function (_) { return _.html; })
+                           .then(function (html) { el.nextElementSibling.firstElementChild.innerHTML = html; })
+                           .then(function () { $(el).data('comments-loaded', 'true'); });
+                       }
+                   });
+                });
+
+                resp.counts.forEach(function(block) {
+                    var text;
+                    if (block.count === 0) {
+                        text = 'No Comments';
+                    } else if (block.count === 1) {
+                        text = '1 Comment';
+                    } else {
+                        text = block.count + ' Comments';
+                    }
+                    $('#'+block.blockId + ' .js-blog-entry-num-comments').text(text);
+                    $('#'+block.blockId + ' .js-blog-entry-comments').text('Loading...');
+                    $('#'+block.blockId + ' .js-blog-entry-view-comments').data('root-comment-id', block.rootCommentId);
+                    commentBoxes[block.blockId].setOptions({ rootCommentId: block.rootCommentId });
+                });
+            }.bind(this)
+        ).then(
+            function renderPickedComments() {
+                $('[itemprop="liveBlogUpdate"] .js-blog-entry-view-comments').each(function(el) {
+                    var rootCommentId = $(el).data('root-comment-id');
+                    if (rootCommentId) {
+                        this.fetchPickedCommentsForBlogPost(rootCommentId).then(function(resp) {
+                            var pickedComments = document.createElement('div');
+                            pickedComments.classList.add('picked-comments');
+                            pickedComments.innerHTML = resp.html;
+
+                            var blogEntry = el.closest('[itemprop="liveBlogUpdate"]');
+                            blogEntry.insertBefore(pickedComments, blogEntry.firstElementChild);
+                        });
+                    }
+                }.bind(this));
+            }.bind(this)
+        ).catch(this.logError.bind(this, 'Comment counts per blog post'));
     });
 };
 
@@ -236,7 +240,7 @@ Loader.prototype.fetchPickedCommentsForBlogPost = function(id) {
         type: 'json',
         method: 'get',
         crossOrigin: true
-    })
+    });
 };
 
 Loader.prototype.logError = function(commentType, error) {
