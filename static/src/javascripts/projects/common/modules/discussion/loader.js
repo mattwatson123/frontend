@@ -194,7 +194,7 @@ Loader.prototype.initLiveBlogComments = function() {
                     text = block.count + ' Comments';
                 }
                 $('#'+block.blockId + ' .js-blog-entry-num-comments').text(text);
-                $('#'+block.blockId + ' .js-blog-entry-comment-box').text('Loading...');
+                $('#'+block.blockId + ' .js-blog-entry-comments').text('Loading...');
                 $('#'+block.blockId + ' .js-blog-entry-view-comments').data('root-comment-id', block.rootCommentId);
             });
         }.bind(this)
