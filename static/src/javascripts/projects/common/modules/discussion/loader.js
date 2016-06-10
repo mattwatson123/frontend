@@ -171,16 +171,18 @@ Loader.prototype.initLiveBlogComments = function() {
         function renderCounts(resp) {
             $('.js-blog-entry-view-comments').each(function(el) {
                bean.on(el, 'click', function onClick() {
-                   $(el).next().removeClass('u-h');
-                   ajaxPromise({
-                       url: '/discussion/comment-responses/' + $(el).data('root-comment-id') + '.json',
-                       type: 'json',
-                       method: 'get',
-                       crossOrigin: true
-                   })
-                   .then(function (_) { return _.html; })
-                   .then(function (html) { el.nextElementSibling.firstElementChild.innerHTML = html; });
-                   bean.off(el, 'click', onClick);
+                   $(el).next().toggleClass('u-h');
+                   if (!$(el).data('comments-loaded')) {
+                       ajaxPromise({
+                           url: '/discussion/comment-responses/' + $(el).data('root-comment-id') + '.json',
+                           type: 'json',
+                           method: 'get',
+                           crossOrigin: true
+                       })
+                       .then(function (_) { return _.html; })
+                       .then(function (html) { el.nextElementSibling.firstElementChild.innerHTML = html; })
+                       .then(function () { $(el).data('comments-loaded', 'true'); });
+                   }
                });
             });
 
@@ -194,7 +196,7 @@ Loader.prototype.initLiveBlogComments = function() {
                     text = block.count + ' Comments';
                 }
                 $('#'+block.blockId + ' .js-blog-entry-num-comments').text(text);
-                $('#'+block.blockId + ' .js-blog-entry-comment-box').text('Loading...');
+                $('#'+block.blockId + ' .js-blog-entry-comments').text('Loading...');
                 $('#'+block.blockId + ' .js-blog-entry-view-comments').data('root-comment-id', block.rootCommentId);
             });
         }.bind(this)
@@ -202,7 +204,12 @@ Loader.prototype.initLiveBlogComments = function() {
 
     this.on('user:loaded', function() {
         $('[itemprop="liveBlogUpdate"] .js-blog-entry-comment-box').each(function(el) {
-            this.renderCommentBox(el);
+            return new CommentBox({
+                discussionId: this.getDiscussionId(),
+                premod: this.user.privateFields.isPremoderated,
+                newCommenter: !this.user.privateFields.hasCommented,
+                state: 'blog-post'
+            }).render(el).on('post:success', this.commentPosted.bind(this));
         }.bind(this));
     });
 };
