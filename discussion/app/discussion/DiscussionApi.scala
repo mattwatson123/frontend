@@ -47,10 +47,10 @@ trait DiscussionApi extends Http with ExecutionContexts with Logging {
     getCommentJsonForId(id, url)
   }
 
-  def commentCountsForBlocks(key: DiscussionKey): Future[Seq[BlockCommentCount]] = {
+  val MAGIC_COMMENT = """#block-"""
+  val SPECIAL_USER: String = "21814163" // john on CODE
 
-    val MAGIC_COMMENT = """#block-"""
-    val SPECIAL_USER: String = "21814163" // john on CODE
+  def commentCountsForBlocks(key: DiscussionKey): Future[Seq[BlockCommentCount]] = {
 
     val parameters = List(
       "pageSize" -> "100",
@@ -93,7 +93,11 @@ trait DiscussionApi extends Http with ExecutionContexts with Logging {
     val path = s"/discussion/$key" + (if(params.topComments) "/topcomments" else "")
     val url = endpointUrl(path, parameters)
 
-    getJsonForUri(key, url)
+    getJsonForUri(key, url).map { comments =>
+      comments.copy(comments = comments.comments.filter { comment =>
+        comment.body.indexOf(MAGIC_COMMENT) == -1
+      })
+    }
   }
 
   def commentResponses(commentId: Int): Future[Seq[Comment]] = {
