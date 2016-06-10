@@ -60,13 +60,17 @@ function isElementInViewport ( el ) {
   );
 }
 
-function cacheVisitableLinks() {
-  Turbolinks.controller.cache.size = 200;
+function cacheVisitableLinks( allLinks ) {
+  Turbolinks.controller.cache.size = 400;
+
+  function filterOnlyVisibleElements( element ) {
+    return allLinks === true || isElementInViewport( element );
+  }
 
   var links = Array.from(
     document.getElementsByTagName( 'a' )
   )
-    .filter( isElementInViewport )
+    .filter( filterOnlyVisibleElements )
     .map(function(e) {
       return {
         element: e,
@@ -115,6 +119,58 @@ document.addEventListener( 'turbolinks:render', function() {
   Turbolinks.controller.scrollToAnchor('header');
 });
 
+// adapt cache
 require( [ 'https://cdnjs.cloudflare.com/ajax/libs/localforage/1.4.2/localforage.js' ], function( localforage ) {
-  console.log('localforage', localforage);
+  var store = localforage.createInstance({
+    name: "turbolinks"
+  });
+
+  var cache = Turbolinks.controller.cache;
+  var cacheWriteOriginal = cache.write.bind( cache );
+  var cacheReadOriginal = cache.read.bind( cache );
+
+  cache.write = function cacheWriteProxy( location, snapshot ) {
+    var serialized = JSON.stringify({
+      'head': snapshot.head.innerHTML,
+      'body': snapshot.body.innerHTML
+    });
+
+    store.setItem( location.toString(), serialized );
+    return cacheWriteOriginal.apply( cache, arguments );
+  };
+
+  // populate page cache
+  store.keys().then(function( keys ) {
+    return Promise.all(
+      keys.map(function( location ) {
+        return store.getItem( location )
+          .then(function( storedItem ) {
+            var wrappedLocation = Turbolinks.Location.wrap( location );
+            var parsed = JSON.parse( storedItem );
+
+            var head = document.createElement( 'head' );
+            var body = document.createElement( 'body' );
+
+            head.innerHTML = parsed.head;
+            body.innerHTML = parsed.body;
+
+            var snapshot = new Turbolinks.Snapshot({ head: head, body: body });
+
+            cacheWriteOriginal( wrappedLocation, snapshot );
+            cache.touch( wrappedLocation );
+
+            return {
+              location: wrappedLocation,
+              snapshot: snapshot
+            };
+          });
+        // to snapshot
+      })
+    );
+  }).then(function(all) {
+    console.log( 'Cache populated', all.length );
+
+    cacheVisitableLinks( true );
+  });
+
 });
