@@ -406,6 +406,9 @@ $avatarPadding: $gs-gutter / 2;
     float: left;
     width: 250px;
     margin-left: -260px;
+    margin-top: $gs-baseline / -2;
+
+    .d-comment::before { content: none; }
 }
 
 .d-comment-box--blog-post .d-comment-box__meta {
