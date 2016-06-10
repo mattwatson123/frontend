@@ -81,6 +81,21 @@
             </div>
         }
 
+            <div class="discussion__toolbar-item js-comments-from-dropdown">
+                <button class="u-button-reset popup__toggle" data-toggle="popup--comments-from"
+                        aria-haspopup="true" aria-controls="comments-from-popup">Show comments from<span class="js-comments-from">All users</span></button>
+
+                <ul id="comments-from-popup" class="popup popup--default popup__group popup--comments-from is-off">
+
+                  <li class="popup__item">
+                      <button class="u-button-reset popup__action" data-comments-from="All Users" data-link-name="comments-all-users">All users</button>
+                  </li>
+                  <li class="popup__item">
+                      <button class="u-button-reset popup__action" data-comments-from="Verified Users" data-link-name="comments-verified-users">Verified users</button>
+                  </li>
+                </ul>
+            </div>
+
         <div class="discussion__pagination discussion__pagination--top js-discussion-pagination"></div>
 
     </div>

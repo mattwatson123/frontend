@@ -206,6 +206,17 @@ Loader.prototype.initToolbar = function() {
         this.loadComments({page: 1});
     });
 
+    var $commentsFromLabel = $('.js-comments-from');
+    var commentsFrom = 'All Users';
+    $commentsFromLabel.text(commentsFrom);
+    this.on('click', '.js-comments-from-dropdown .popup__action', function(e) {
+        bean.fire(qwery('.js-comments-from-dropdown [data-toggle]')[0], 'click');
+        commentsFrom = bonzo(e.currentTarget).data('comments-from');
+        $commentsFromLabel.text(commentsFrom);
+        //userPrefs.set('discussion.order', this.comments.options.order);
+        //this.loadComments({page: 1});
+    });
+
     var $threadingLabel = $('.js-comment-threading');
     $threadingLabel.text(this.comments.options.threading);
     this.on('click', '.js-comment-threading-dropdown .popup__action', function(e) {
@@ -459,6 +470,8 @@ Loader.prototype.loadComments = function(options) {
         if (options.comment) {
             this.gotoComment(options.comment);
         }
+
+        bonzo(qwery('[data-comment-author="SimonHackday"]')).hide();
     }.bind(this));
 };
 
