@@ -200,6 +200,22 @@ Loader.prototype.initLiveBlogComments = function() {
                 $('#'+block.blockId + ' .js-blog-entry-view-comments').data('root-comment-id', block.rootCommentId);
             });
         }.bind(this)
+    ).then(
+        function renderPickedComments() {
+            $('[itemprop="liveBlogUpdate"] .js-blog-entry-view-comments').each(function(el) {
+                var rootCommentId = $(el).data('root-comment-id');
+                if (rootCommentId) {
+                    this.fetchPickedCommentsForBlogPost(rootCommentId).then(function(resp) {
+                        var pickedComments = document.createElement('div');
+                        pickedComments.classList.add('picked-comments');
+                        pickedComments.innerHTML = resp.html;
+
+                        var blogEntry = el.closest('[itemprop="liveBlogUpdate"]');
+                        blogEntry.insertBefore(pickedComments, blogEntry.firstElementChild);
+                    });
+                }
+            }.bind(this));
+        }.bind(this)
     ).catch(this.logError.bind(this, 'Comment counts per blog post'));
 
     this.on('user:loaded', function() {
@@ -212,6 +228,15 @@ Loader.prototype.initLiveBlogComments = function() {
             }).render(el).on('post:success', this.commentPosted.bind(this));
         }.bind(this));
     });
+};
+
+Loader.prototype.fetchPickedCommentsForBlogPost = function(id) {
+    return ajaxPromise({
+        url: '/discussion/comment-promoted/' + id + '.json',
+        type: 'json',
+        method: 'get',
+        crossOrigin: true
+    })
 };
 
 Loader.prototype.logError = function(commentType, error) {
