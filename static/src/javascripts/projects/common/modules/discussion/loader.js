@@ -10,6 +10,7 @@ define([
     'common/utils/mediator',
     'common/utils/scroller',
     'common/utils/fastdom-promise',
+    'common/views/svgs',
     'common/modules/analytics/discussion',
     'common/modules/analytics/register',
     'common/modules/component',
@@ -31,6 +32,7 @@ define([
     mediator,
     scroller,
     fastdom,
+    svgs,
     DiscussionAnalytics,
     register,
     Component,
@@ -203,12 +205,10 @@ Loader.prototype.initLiveBlogComments = function() {
                     var text;
                     if (block.count === 0) {
                         text = 'No Comments';
-                    } else if (block.count === 1) {
-                        text = '1 Comment';
                     } else {
-                        text = block.count + ' Comments';
+                        text = svgs('commentCount16icon') + ' ' + block.count;
                     }
-                    $('#'+block.blockId + ' .js-blog-entry-num-comments').text(text);
+                    $('#'+block.blockId + ' .js-blog-entry-num-comments').html(text);
                     $('#'+block.blockId + ' .js-blog-entry-comments').text('Loading...');
                     $('#'+block.blockId + ' .js-blog-entry-view-comments').data('root-comment-id', block.rootCommentId);
                     commentBoxes[block.blockId].setOptions({ rootCommentId: block.rootCommentId });

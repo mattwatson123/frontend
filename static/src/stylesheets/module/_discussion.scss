@@ -1499,3 +1499,33 @@ $comment-recommend-button-size: 19px;
     background-color: colour(neutral-3);
     border-color: colour(neutral-3);
 }
+
+/* ======================================================================== */
+/*                               SHAMELESS HACK                             */
+/* ======================================================================== */
+
+.blog-entry-comment {
+    .d-comment::before {
+        content: none;
+    }
+
+    .d-comment__main {
+        padding-bottom: 0;
+    }
+
+    .d-comment__actions,
+    .d-comment-box__meta,
+    .d-comment-box__submit span {
+        display: none;
+    }
+
+    .d-comment-box__content {
+        display: flex;
+        align-items: center;
+    }
+
+    .d-comment-box__submit {
+        margin-left: $gs-gutter;
+        margin-right: 0;
+    }
+}
