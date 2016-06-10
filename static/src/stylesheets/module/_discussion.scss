@@ -403,9 +403,9 @@ $avatarPadding: $gs-gutter / 2;
 }
 
 .picked-comments {
-    float: right;
+    float: left;
     width: 250px;
-    margin-right: -260px;
+    margin-left: -260px;
 }
 
 .d-comment-box--blog-post .d-comment-box__meta {
